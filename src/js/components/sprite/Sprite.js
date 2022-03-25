@@ -1,19 +1,12 @@
+import {tweenShake, tweenSetAlpha, tweenTint } from '../../utils/tweens.js';
+
 export default class Sprite {
-  constructor(
-    game, x, y, anchor, name, disabled = false,
-    initAngle, finishAngle, isComplete
-  ) {
+  constructor(game, x, y, anchor, name) {
     this.game = game
     this.positionPartX = x
     this.positionPartY = y
     this.anchor = anchor
-    this.anchorX = this.anchor[0]
-    this.anchorY = this.anchor[1]
     this.spriteName = name
-    this.disabled = disabled
-    this.initAngle = initAngle
-    this.finishAngle = finishAngle
-    this.isComplete = isComplete
     
     this.block = null
     
@@ -22,17 +15,14 @@ export default class Sprite {
   
   init = () => {
     this.#createBlock()
-  
   }
   
   #createBlock = () => {
     this.block = this.game.make.image(this.positionPartX, this.positionPartY, this.spriteName)
-  
     this.block.inputEnabled = true
     this.block.anchor.set(...this.anchor)
-
-    this.block.alpha = 1
-
+  
+    
     this.game.world.add(this.block)
     this.#initEvents()
 
@@ -40,12 +30,18 @@ export default class Sprite {
   }
   
   #initEvents = () => {
-    this.block.events.onInputDown.add(this.#onTouchStart)
+    this.block.events.onInputDown.addOnce(this.#onTouchStart)
   }
   
-  #onTouchStart = (sprite, pointer) => {
-    this.block.isPressed = true
-    
-    console.log('click')
+  #onTouchStart = (sprite) => {
+    console.log('knock! knock!')
+    this.#destroySprite(sprite)
+  }
+  
+  #destroySprite = (sprite) => {
+    tweenShake(this.game, sprite, 0.03)
+    tweenTint(this.game, sprite, sprite.tint, 0xFF000D, 0.05)
+    tweenSetAlpha(this.game, sprite, 0, 0.3)
+      .onComplete.add(() => this.block.destroy())
   }
 }

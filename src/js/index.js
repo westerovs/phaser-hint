@@ -33,16 +33,12 @@ class Game {
   
   createSprites = () => {
     spriteParams.forEach(sprite => {
-        new Sprite(
-          this.game,
-          sprite.x,
-          sprite.y,
-          sprite.anchor,
-          sprite._name,
-          sprite.isDisabled,
-          sprite.initAngle,
-          sprite.finishAngle,
-          sprite.isComplete
+      new Sprite(
+        this.game,
+        sprite.x,
+        sprite.y,
+        sprite.anchor,
+        sprite._name,
       )
     })
   }
