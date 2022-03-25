@@ -1,0 +1,5 @@
+const SPRITES = []
+
+export {
+  SPRITES
+}
