@@ -8,7 +8,7 @@ export default class Sprite {
     this.anchor = anchor
     this.spriteName = name
     
-    this.block = null
+    this.sprite = null
     
     this.init()
   }
@@ -18,19 +18,18 @@ export default class Sprite {
   }
   
   #createBlock = () => {
-    this.block = this.game.make.image(this.positionPartX, this.positionPartY, this.spriteName)
-    this.block.inputEnabled = true
-    this.block.anchor.set(...this.anchor)
-  
+    this.sprite = this.game.make.image(this.positionPartX, this.positionPartY, this.spriteName)
+    this.sprite.inputEnabled = true
+    this.sprite.anchor.set(...this.anchor)
     
-    this.game.world.add(this.block)
+    this.game.world.add(this.sprite)
     this.#initEvents()
 
-    return this.block
+    return this.sprite
   }
   
   #initEvents = () => {
-    this.block.events.onInputDown.addOnce(this.#onTouchStart)
+    this.sprite.events.onInputDown.addOnce(this.#onTouchStart)
   }
   
   #onTouchStart = (sprite) => {
@@ -42,6 +41,9 @@ export default class Sprite {
     tweenShake(this.game, sprite, 0.03)
     tweenTint(this.game, sprite, sprite.tint, 0xFF000D, 0.05)
     tweenSetAlpha(this.game, sprite, 0, 0.3)
-      .onComplete.add(() => this.block.destroy())
+      .onComplete.add(() => {
+      this.sprite.destroy()
+      console.log('sprite alive:', sprite.alive)
+    })
   }
 }

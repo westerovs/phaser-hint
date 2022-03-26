@@ -1,10 +1,12 @@
 import {SPRITES} from './const.js';
 import {spriteParams, spriteNames} from './components/sprite/config.js'
 import Sprite from './components/sprite/Sprite.js'
+import Hint from './components/Hint.js';
 
 class Game {
   constructor() {
     this.game  = null
+    this.hint = null
   }
   
   init() {
@@ -17,34 +19,45 @@ class Game {
         preload: this.preload,
         create : this.create,
         update : this.update,
+        render : this.render
       })
-    
   }
   
   preload = () => {
     Object.keys(spriteNames).forEach(key => {
       this.game.load.image(key, `/src/img/skeletons/${ key }.png`)
     })
+    
+    this.game.load.image('hint', '/src/img/hint.png')
   }
   
   create = () => {
-    this.createSprites()
+    this.#createSprites()
+    this.#createHint()
   }
   
-  createSprites = () => {
+  #createHint = () => {
+    this.hint = new Hint(this.game, 1, SPRITES).hint
+  }
+  
+  #createSprites = () => {
     spriteParams.forEach(sprite => {
-      new Sprite(
-        this.game,
-        sprite.x,
-        sprite.y,
-        sprite.anchor,
-        sprite._name,
-      )
+      SPRITES.push(new Sprite(
+          this.game,
+          sprite.x,
+          sprite.y,
+          sprite.anchor,
+          sprite._name,
+        ).sprite)
     })
   }
   
-  update = () => {
-  
+  render = () => {
+    SPRITES.forEach(sprite => {
+      if (!sprite.alive) return
+      this.game.debug.spriteBounds(sprite)
+    })
+    this.game.debug.spriteBounds(this.hint)
   }
 }
 

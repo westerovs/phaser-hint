@@ -17,7 +17,7 @@ const spriteParams = [
   {
     _name      : spriteNames.skeleton1,
     isDisabled : false,
-    x          : 100,
+    x          : 200,
     y          : 200,
     anchor     : [0.5, 0.5],
     initAngle  : 0,
