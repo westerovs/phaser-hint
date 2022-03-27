@@ -34,6 +34,7 @@ export default class Sprite {
   
   #onTouchStart = (sprite) => {
     console.log('knock! knock!')
+    this.game.onTouchStartAction.dispatch(sprite)
     this.#destroySprite(sprite)
   }
   

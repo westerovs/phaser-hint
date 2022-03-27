@@ -53,11 +53,11 @@ class Game {
   }
   
   render = () => {
-    SPRITES.forEach(sprite => {
-      if (!sprite.alive) return
-      this.game.debug.spriteBounds(sprite)
-    })
-    this.game.debug.spriteBounds(this.hint)
+    // SPRITES.forEach(sprite => {
+    //   if (!sprite.alive) return
+    //   this.game.debug.spriteBounds(sprite)
+    // })
+    // this.game.debug.spriteBounds(this.hint)
   }
 }
 
