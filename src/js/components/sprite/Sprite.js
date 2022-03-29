@@ -33,7 +33,7 @@ export default class Sprite {
   }
   
   #onTouchStart = (sprite) => {
-    this.game.onTouchStartAction.dispatch(sprite)
+    this.game.OnHintTouchStartAction.dispatch(sprite)
     this.#destroySprite(sprite)
   }
   

@@ -18,8 +18,6 @@ class Game {
       {
         preload: this.preload,
         create : this.create,
-        update : this.update,
-        render : this.render
       })
   }
   
@@ -37,11 +35,7 @@ class Game {
   }
   
   #createHint = () => {
-    this.hint = new Hint(this.game, 1, SPRITES, 'skeleton2').hint
-  }
-  
-  test = () => {
-    'БЛЯЯЯЯЯЯ'
+    this.hint = new Hint(this.game, 1, SPRITES,  ).hint
   }
   
   #createSprites = () => {
@@ -54,14 +48,6 @@ class Game {
           sprite._name,
         ).sprite)
     })
-  }
-  
-  render = () => {
-    // SPRITES.forEach(sprite => {
-    //   if (!sprite.alive) return
-    //   this.game.debug.spriteBounds(sprite)
-    // })
-    // this.game.debug.spriteBounds(this.hint)
   }
 }
 

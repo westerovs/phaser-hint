@@ -1,36 +1,43 @@
+/*
+1 В месте, где у вас обрабатывается клик по элементу вызвать:
+this.game.OnHintTouchStartAction.dispatch(sprite)
+
+// События на которые можно подписаться:
+this.game.onHintDestroy.add(() => console.log('DESTROYED'))
+
+* */
+
 const AnimationType = {
-  scale: (game, hint, factor) => {
+  scale: (game, hint, factor, duration) => {
     return game.add.tween(hint.scale)
       .to({
-        x: (hint.scale.x * 0.95) * factor,
-        y: (hint.scale.y * 0.95) * factor,
-      }, Phaser.Timer.QUARTER, Phaser.Easing.Power5, false).yoyo(true)
+        x: (hint.scale.x * 0.90) * factor,
+        y: (hint.scale.y * 0.90) * factor,
+      }, Phaser.Timer.SECOND * duration, Phaser.Easing.Linear.None, false).yoyo(true)
       .yoyo(true)
       .repeat(-1)
   }
 }
 
 export default class Hint {
-  constructor(game, factor, sprites, targetKey = null) {
+  constructor(game, factor, sprites, durationHint = 0.25, delayHint = 1, targetKey = null) {
     this.game = game
     this.factor = factor
     this.sprites = sprites
+    this.durationHint = durationHint
+    this.delayHint = delayHint
+    this.targetKey = targetKey
     
     this.hint = null
     this.hintTargets = []
-    
-    this.hintDelay = 2
-    this.timerHint = null
     this.hintAnimations = null
   
-    this.hintIsDestroyed = false
-    this.targetKey = targetKey
     this.init()
   }
   
   init = () => {
     this.#createHint()
-    this.#runHintAnimate()
+    this.#runAnimation()
   
     this.#initSignals()
     this.#targetTouchAction()
@@ -38,16 +45,14 @@ export default class Hint {
   
   destroyHint = () => {
     console.warn('Hint was destroyed')
-    this.hintIsDestroyed = true
-    
+
     this.hint.destroy()
     this.hint = null
-  
     this.#stopAnimation()
   }
   
   #initSignals = () => {
-    this.game.onTouchStartAction = new Phaser.Signal()
+    this.game.OnHintTouchStartAction = new Phaser.Signal()
     this.game.onHintDestroy = new Phaser.Signal()
     
     this.game.onHintDestroy.add(this.destroyHint)
@@ -63,7 +68,7 @@ export default class Hint {
   }
   
   #targetTouchAction = () => {
-    this.game.onTouchStartAction.add((target) => {
+    this.game.OnHintTouchStartAction.add((target) => {
       target.alive = false
       
       // если нет целей, то kill hint
@@ -76,7 +81,6 @@ export default class Hint {
       this.hint.alpha = 0
       this.#updateTargetPosition()
       this.#checkAndReverseHintPosition()
-      this.#restartTween()
     })
   }
   
@@ -118,25 +122,32 @@ export default class Hint {
   }
   
   #checkAndReverseHintPosition = () => {
-    // ↓ пересчитывает последний update кадр мира, для получения world position
+    // Проверка, если hint за границы мира попадает.
+    // ↓ Пересчитывает последний update кадр мира, для получения world position
     this.game.stage.updateTransform()
     this.hint.scale.set(this.factor)
+    this.#restartAnimation()
   
-    if ((this.hint.worldPosition.x + this.hint.width) > this.game.width) {
-      this.hint.scale.x = -this.factor
+    const worldBorderX = (this.hint.worldPosition.x + this.hint.width) > this.game.width
+    const worldBorderY = (this.hint.worldPosition.y + this.hint.height) > this.game.height
+  
+    if (worldBorderX) {
+      this.hint.scale.set(-this.factor, this.factor)
+      this.#restartAnimation()
     }
-    if ((this.hint.worldPosition.y + this.hint.height) > this.game.height) {
-      this.hint.scale.y = -this.factor
+    if (worldBorderY) {
+      this.hint.scale.set(this.factor, -this.factor)
+      this.#restartAnimation()
     }
   }
   
-  #runHintAnimate = () => {
-    this.game.time.events.add(Phaser.Timer.SECOND * this.hintDelay, () => {
+  #runAnimation = () => {
+    this.game.time.events.add(Phaser.Timer.SECOND * this.delayHint, () => {
       if (this.hint === null) return
   
       this.hint.alpha = 1
       
-      this.hintAnimations = AnimationType.scale(this.game, this.hint, this.factor)
+      this.hintAnimations = AnimationType.scale(this.game, this.hint, this.factor, this.durationHint)
       this.hintAnimations.start()
     })
   
@@ -145,15 +156,15 @@ export default class Hint {
   
   #stopAnimation = () => {
     if (this.hintAnimations && this.hintAnimations.isRunning) {
+      console.log('stop')
       this.hintAnimations.stop()
       this.game.tweens.remove(this.hintAnimations)
       this.hintAnimations = null
     }
   }
   
-  #restartTween = () => {
-    console.log('restart')
+  #restartAnimation = () => {
     this.#stopAnimation()
-    this.#runHintAnimate()
+    this.#runAnimation()
   }
 }
