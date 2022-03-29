@@ -25,10 +25,10 @@ class Game {
   
   preload = () => {
     Object.keys(spriteNames).forEach(key => {
-      this.game.load.image(key, `/src/img/skeletons/${ key }.png`)
+      this.game.load.image(key, `./src/img/skeletons/${ key }.png`)
     })
     
-    this.game.load.image('hint', '/src/img/hint.png')
+    this.game.load.image('hint', './src/img/hint.png')
   }
   
   create = () => {
