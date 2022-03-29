@@ -21,7 +21,7 @@ export default class Hint {
     this.hint = null
     this.hintTargets = []
     
-    this.hintDelay = 1
+    this.hintDelay = 3
     this.timerHint = null
     this.hintAnimations = null
   
@@ -32,7 +32,7 @@ export default class Hint {
   
   init = () => {
     this.#createHint()
-    // this.#runHintAnimate()
+    this.#runHintAnimate()
   
     this.#initSignals()
     this.#targetTouchAction()
@@ -44,6 +44,8 @@ export default class Hint {
     
     this.hint.destroy()
     this.hint = null
+  
+    this.#stopAnimation()
   }
   
   #initSignals = () => {
@@ -53,30 +55,35 @@ export default class Hint {
     this.game.onHintDestroy.add(this.destroyHint)
   }
   
+  #createHint = () => {
+    this.#getAliveTargets()
+    
+    const {x, y} = this.#getTargetPosition()
+    
+    this.hint = this.game.add.image(x, y, 'hint')
+    this.hint.alpha = 0.1
+  }
+  
   #targetTouchAction = () => {
     this.game.onTouchStartAction.add((target) => {
       target.alive = false
-  
+      
       // если нет целей, то kill hint
       const countTargets = this.#getAliveTargets()
       if (countTargets <= 0) {
         this.game.onHintDestroy.dispatch(this.destroyHint)
         return
       }
-  
+      
+      console.log(' ------------------ ')
+      console.log('countTargets', countTargets)
+      console.log(' ------------------ ')
+      
+      this.hint.alpha = 0
       this.#updateTargetPosition()
       this.#checkAndReverseHintPosition()
-      // this.#restartTween()
+      this.#restartTween()
     })
-  }
-  
-  #createHint = () => {
-    this.#getAliveTargets()
-  
-    const {x, y} = this.#getTargetPosition()
-  
-    this.hint = this.game.add.image(x, y, 'hint')
-    this.hint.alpha = 0.1
   }
   
   #getAliveTargets = () => {
@@ -134,7 +141,7 @@ export default class Hint {
   #runHintAnimate = () => {
     this.game.time.events.add(Phaser.Timer.SECOND * this.hintDelay, () => {
       if (this.hint === null) return
-      console.log('runHintAnimate')
+      console.log('run Hint Animate')
   
       this.hint.alpha = 1
       
@@ -153,12 +160,17 @@ export default class Hint {
     return this.hintAnimations
   }
   
+  #stopAnimation = () => {
+    if (this.hintAnimations && this.hintAnimations.isRunning) {
+      this.hintAnimations.stop()
+      this.game.tweens.remove(this.hintAnimations)
+      this.hintAnimations = null
+    }
+  }
+  
   #restartTween = () => {
-    if (this.hintTargets.length === 0) return
     console.log('restart')
-
-    this.game.tweens.remove(this.hintAnimations)
-    this.hintAnimations = null
-    // this.#runHintAnimate()
+    this.#stopAnimation()
+    this.#runHintAnimate()
   }
 }
