@@ -37,7 +37,7 @@ class Game {
   }
   
   #createHint = () => {
-    this.hint = new Hint(this.game, 1, SPRITES).hint
+    this.hint = new Hint(this.game, 1, SPRITES, 'skeleton2').hint
   }
   
   #createSprites = () => {
