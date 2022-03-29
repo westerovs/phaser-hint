@@ -33,7 +33,7 @@ export default class Sprite {
   }
   
   #onTouchStart = (sprite) => {
-    console.log('knock! knock!')
+    console.log('click!')
     this.game.onTouchStartAction.dispatch(sprite)
     this.#destroySprite(sprite)
   }
@@ -44,7 +44,7 @@ export default class Sprite {
     tweenSetAlpha(this.game, sprite, 0, 0.3)
       .onComplete.add(() => {
       this.sprite.destroy()
-      console.log('sprite alive:', sprite.alive)
+      // console.log('sprite alive:', sprite.alive)
     })
   }
 }

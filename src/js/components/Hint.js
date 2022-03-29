@@ -1,11 +1,11 @@
 /* eslint-disable */
 
 const AnimationType = {
-  scale: (game, hint) => {
+  scale: (game, hint, factor) => {
     return game.add.tween(hint.scale)
       .to({
-        x: hint.scale.x * 0.95,
-        y: hint.scale.y * 0.95,
+        x: (hint.scale.x * 0.95) * factor,
+        y: (hint.scale.y * 0.95) * factor,
       }, Phaser.Timer.QUARTER, Phaser.Easing.Power5, false).yoyo(true)
       .yoyo(true)
       .repeat(-1)
@@ -19,7 +19,7 @@ export default class Hint {
     this.sprites = sprites
     
     this.hint = null
-    this.hintDelay = 1
+    this.hintDelay = 0
     this.timerHint = null
     this.hintAnimations = null
   
@@ -28,12 +28,15 @@ export default class Hint {
   
   init = () => {
     this.#createHint()
+    this.#runHintAnimate()
+  
     this.#initSignals()
     this.#targetTouchAction()
   }
   
   destroyHint = () => {
     console.log('destroyHint')
+    
     this.game.tweens.remove(this.hintAnimations)
     this.hint.destroy()
     this.hint = null
@@ -45,19 +48,18 @@ export default class Hint {
   
   #targetTouchAction = () => {
     this.game.onTouchStartAction.add((target) => {
-      console.log('onTouchStartAction1')
       target.alive = false
       this.#getTargetPosition()
+      this.#restartTween()
     })
   }
   
   #createHint = () => {
-    this.hint = this.game.add.image(333, 333, 'hint')
+    this.hint = this.game.add.image(null, null, 'hint')
     this.hint.anchor.set(0)
     this.hint.alpha = 0
 
     this.#getTargetPosition()
-    this.#runHintAnimate()
   }
   
   #getTargetPosition = () => {
@@ -79,18 +81,50 @@ export default class Hint {
       }
   
       const target = hintTargets[0]
-      // ↓ пересчитывает последний кадр мира, для получения world position
-      this.game.stage.updateTransform();
       this.hint.position.set(target.centerX, target.centerY)
+      
+      // ↓ пересчитывает последний update кадр мира, для получения world position
+      this.game.stage.updateTransform()
+      // this.hint.scale.set(this.factor)
+      this.hint.scale.x = this.factor
+      
+      // if (this.hint.worldPosition.x + this.hint.width > this.game.width) {
+      //   console.log('x', this.hint.worldPosition.x + this.hint.width > this.game.width)
+      //   this.hint.scale.x = -this.factor
+      // }
+      // if (this.hint.worldPosition.y + this.hint.height > this.game.height) {
+      //   console.log('y', this.hint.worldPosition.x + this.hint.width > this.game.width)
+      //   this.hint.scale.y = -this.factor
+      // }
+      // else {
+      //   console.log('else')
+      //   this.hint.scale.set(this.factor)
+      // }
+  
     })
 
   }
   
   #runHintAnimate = () => {
     this.game.time.events.add(Phaser.Timer.SECOND * this.hintDelay, () => {
+      if (this.hint === null) return
       this.hint.alpha = 1
       
-      this.hintAnimations = AnimationType.scale(this.game, this.hint)
+      // this.hintAnimations = AnimationType.scale(this.game, this.hint, this.factor)
+      // this.hintAnimations = this.game.add.tween(this.hint.scale)
+      //   .to({
+      //     x: (this.hint.scale.x * 0.95) * this.factor,
+      //     y: (this.hint.scale.y * 0.95) * this.factor,
+      //   }, Phaser.Timer.QUARTER, Phaser.Easing.Power5, false).yoyo(true)
+      //   .yoyo(true)
+      //   .repeat(-1)
+  
+      this.hintAnimations = this.game.add.tween(this.hint)
+        .to({
+          angle: 90,
+        }, Phaser.Timer.SECOND * 2, Phaser.Easing.Power5, false).yoyo(true)
+        .yoyo(true)
+        .repeat(-1)
       this.hintAnimations.start()
     })
   
@@ -119,5 +153,12 @@ export default class Hint {
   
   #resumeHint = () => {
     this.hintAnimations.resume()
+  }
+  
+  #restartTween = () => {
+    console.log('restart')
+  
+    // this.hint.scale.set(this.factor)
+    this.#runHintAnimate()
   }
 }
