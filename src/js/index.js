@@ -40,6 +40,10 @@ class Game {
     this.hint = new Hint(this.game, 1, SPRITES, 'skeleton2').hint
   }
   
+  test = () => {
+    'БЛЯЯЯЯЯЯ'
+  }
+  
   #createSprites = () => {
     spriteParams.forEach(sprite => {
       SPRITES.push(new Sprite(

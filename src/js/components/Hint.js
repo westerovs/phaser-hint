@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 const AnimationType = {
   scale: (game, hint, factor) => {
     return game.add.tween(hint.scale)
@@ -13,7 +11,7 @@ const AnimationType = {
 }
 
 export default class Hint {
-  constructor(game, factor, sprites, initKey = null) {
+  constructor(game, factor, sprites, targetKey = null) {
     this.game = game
     this.factor = factor
     this.sprites = sprites
@@ -21,12 +19,12 @@ export default class Hint {
     this.hint = null
     this.hintTargets = []
     
-    this.hintDelay = 3
+    this.hintDelay = 2
     this.timerHint = null
     this.hintAnimations = null
   
     this.hintIsDestroyed = false
-    this.initKey = initKey
+    this.targetKey = targetKey
     this.init()
   }
   
@@ -39,7 +37,7 @@ export default class Hint {
   }
   
   destroyHint = () => {
-    console.warn('destroy Hint')
+    console.warn('Hint was destroyed')
     this.hintIsDestroyed = true
     
     this.hint.destroy()
@@ -61,7 +59,7 @@ export default class Hint {
     const {x, y} = this.#getTargetPosition()
     
     this.hint = this.game.add.image(x, y, 'hint')
-    this.hint.alpha = 0.1
+    this.hint.alpha = 0
   }
   
   #targetTouchAction = () => {
@@ -75,10 +73,6 @@ export default class Hint {
         return
       }
       
-      console.log(' ------------------ ')
-      console.log('countTargets', countTargets)
-      console.log(' ------------------ ')
-      
       this.hint.alpha = 0
       this.#updateTargetPosition()
       this.#checkAndReverseHintPosition()
@@ -90,11 +84,11 @@ export default class Hint {
     this.hintTargets = []
     
     // проверка, был ли указан ключ при создании HINT
-    if (this.initKey !== null) {
+    if (this.targetKey !== null) {
       this.sprites.find(sprite => {
-        if (sprite.key === this.initKey) {
+        if (sprite.key === this.targetKey) {
           this.hintTargets.push(sprite)
-          this.initKey = null
+          this.targetKey = null
         }
       })
     } else {
@@ -108,8 +102,6 @@ export default class Hint {
   }
   
   #getTargetPosition = () => {
-    console.log('get Target Position')
-  
     if (this.hintTargets.length === 0) return {x: null, y: null}
   
     const target = this.hintTargets[0]
@@ -141,19 +133,10 @@ export default class Hint {
   #runHintAnimate = () => {
     this.game.time.events.add(Phaser.Timer.SECOND * this.hintDelay, () => {
       if (this.hint === null) return
-      console.log('run Hint Animate')
   
       this.hint.alpha = 1
       
       this.hintAnimations = AnimationType.scale(this.game, this.hint, this.factor)
-      this.hintAnimations = this.game.add.tween(this.hint.scale)
-        .to({
-          x: (this.hint.scale.x * 0.95) * this.factor,
-          y: (this.hint.scale.y * 0.95) * this.factor,
-        }, Phaser.Timer.QUARTER, Phaser.Easing.Power5, false).yoyo(true)
-        .yoyo(true)
-        .repeat(-1)
-  
       this.hintAnimations.start()
     })
   
