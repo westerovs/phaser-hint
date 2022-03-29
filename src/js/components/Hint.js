@@ -5,19 +5,19 @@ export default class Hint {
     this.factor = factor
     this.sprites = sprites
     
-    this.hintAnimations = null
     
     this.hint = null
     this.hintDelay = 1
     this.timerHint = null
-    this.targets = []
-
+    this.hintAnimations = null
+  
     this.init()
   }
   
   init = () => {
     this.#createHint()
     this.#initSignals()
+    this.#targetTouchAction()
   }
   
   destroyHint = () => {
@@ -31,8 +31,11 @@ export default class Hint {
   
   #initSignals = () => {
     this.game.onTouchStartAction = new Phaser.Signal()
+  }
   
+  #targetTouchAction = () => {
     this.game.onTouchStartAction.add((target) => {
+      console.log('onTouchStartAction1')
       target.alive = false
       this.#getTargetPosition()
     })
@@ -48,54 +51,66 @@ export default class Hint {
   }
   
   #getTargetPosition = () => {
-    this.targets = []
-    
-    this.sprites.forEach(sprite => {
-      if (!sprite.alive) return
-      this.targets.push(sprite)
+    this.hint.alpha = 0
+
+    this.game.time.events.add(Phaser.Timer.SECOND * this.hintDelay, () => {
+      this.hint.alpha = 1
+  
+      const hintTargets = []
+  
+      this.sprites.forEach(sprite => {
+        if (!sprite.alive) return
+        hintTargets.push(sprite)
+      })
+  
+      if (hintTargets.length === 0) return
+  
+      const target = hintTargets[0]
+      // ↓ пересчитывает последний кадр мира, для получения world position
+      this.game.stage.updateTransform();
+      this.hint.position.set(target.centerX, target.centerY)
     })
-    
-    if (this.targets.length === 0) return
-    
-    const target = this.targets[0]
-    // ↓ пересчитывает последний кадр мира, для получения world position
-    this.game.stage.updateTransform();
-    this.hint.position.set(target.centerX, target.centerY)
+
   }
   
   #runHintAnimate = () => {
-    this.hintAnimations = this.game.add.tween(this.hint.scale)
-      .to({
-        x: this.hint.scale.x * 0.95,
-        y: this.hint.scale.y * 0.95,
-      }, Phaser.Timer.QUARTER, Phaser.Easing.Power5, false, 1000 * this.hintDelay).yoyo(true)
-      .yoyo(true)
-      .repeat(2)
-  
-    this.hintAnimations.start()
-      .onComplete.add(() => {
+    this.game.time.events.add(Phaser.Timer.SECOND * this.hintDelay, () => {
+      this.hint.alpha = 1
+      
+      this.hintAnimations = this.game.add.tween(this.hint.scale)
+        .to({
+          x: this.hint.scale.x * 0.95,
+          y: this.hint.scale.y * 0.95,
+        }, Phaser.Timer.QUARTER, Phaser.Easing.Power5, false).yoyo(true)
+        .yoyo(true)
+        .repeat(-1)
+    
+      this.hintAnimations.start()
+        .onComplete.add(() => {
         console.log('complete anim')
+        // this.hint.alpha = 0
         this.#getTargetPosition()
       })
+    })
   
     return this.hintAnimations
   }
   
-  #resetHintTimer() {
-    if (this.timerHint) {
-      console.log('destroy timer')
-      this.timerHint.destroy()
-    }
-    
-    // таймер на 3 секунды
-    this.timerHint = this.game.time.create(false)
-    this.timerHint.loop(Phaser.Timer.SECOND * 3, () => {
-      console.log('loop timer')
-      // if (this.game.input.activePointer.isDown) return
-      // this.createHintHand()
-    })
-    this.timerHint.start()
-  }
+  // #resetHintTimer() {
+  //   if (this.timerHint) {
+  //     console.log('destroy timer')
+  //     this.timerHint.destroy()
+  //   }
+  //
+  //   // таймер на 3 секунды
+  //   this.timerHint = this.game.time.create(false)
+  //   this.timerHint.loop(Phaser.Timer.SECOND * 3, () => {
+  //     console.log('loop timer')
+  //     // if (this.game.input.activePointer.isDown) return
+  //     // this.createHintHand()
+  //   })
+  //   this.timerHint.start()
+  // }
   
   #pauseHint = () => {
     this.hintAnimations.pause()
