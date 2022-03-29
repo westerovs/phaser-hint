@@ -1,10 +1,22 @@
 /* eslint-disable */
+
+const AnimationType = {
+  scale: (game, hint) => {
+    return game.add.tween(hint.scale)
+      .to({
+        x: hint.scale.x * 0.95,
+        y: hint.scale.y * 0.95,
+      }, Phaser.Timer.QUARTER, Phaser.Easing.Power5, false).yoyo(true)
+      .yoyo(true)
+      .repeat(-1)
+  }
+}
+
 export default class Hint {
   constructor(game, factor, sprites) {
     this.game = game
     this.factor = factor
     this.sprites = sprites
-    
     
     this.hint = null
     this.hintDelay = 1
@@ -21,12 +33,10 @@ export default class Hint {
   }
   
   destroyHint = () => {
-    setTimeout(() => {
-      this.game.tweens.remove(this.hintAnimations)
-      this.hint.destroy()
-      this.hint = null
-      console.log(this.hintAnimations)
-    }, 1000)
+    console.log('destroyHint')
+    this.game.tweens.remove(this.hintAnimations)
+    this.hint.destroy()
+    this.hint = null
   }
   
   #initSignals = () => {
@@ -63,7 +73,10 @@ export default class Hint {
         hintTargets.push(sprite)
       })
   
-      if (hintTargets.length === 0) return
+      if (hintTargets.length === 0) {
+        this.destroyHint()
+        return
+      }
   
       const target = hintTargets[0]
       // ↓ пересчитывает последний кадр мира, для получения world position
@@ -77,20 +90,8 @@ export default class Hint {
     this.game.time.events.add(Phaser.Timer.SECOND * this.hintDelay, () => {
       this.hint.alpha = 1
       
-      this.hintAnimations = this.game.add.tween(this.hint.scale)
-        .to({
-          x: this.hint.scale.x * 0.95,
-          y: this.hint.scale.y * 0.95,
-        }, Phaser.Timer.QUARTER, Phaser.Easing.Power5, false).yoyo(true)
-        .yoyo(true)
-        .repeat(-1)
-    
+      this.hintAnimations = AnimationType.scale(this.game, this.hint)
       this.hintAnimations.start()
-        .onComplete.add(() => {
-        console.log('complete anim')
-        // this.hint.alpha = 0
-        this.#getTargetPosition()
-      })
     })
   
     return this.hintAnimations
