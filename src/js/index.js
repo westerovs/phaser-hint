@@ -29,6 +29,7 @@ class Game {
     
     this.game.load.image('hint', './src/img/hint.png')
     this.game.load.image('hint2', './src/img/hint2.png')
+    this.game.load.image('debugDot', './src/img/debug-dot.png')
   }
   
   create = () => {
@@ -42,14 +43,15 @@ class Game {
     SPRITES.forEach(sprite => {
       if (sprite.alive) this.game.debug.spriteBounds(sprite)
     })
-    this.game.debug.spriteBounds(this.hint.hint)
+
+    if (this.hint.hint) this.game.debug.spriteBounds(this.hint.hint)
   }
   
   #createGroup = () => {
     const mainGroup = this.game.make.group()
     const mainGroupOffset = {
-      x: 300,
-      y: 0,
+      x: -300,
+      y: 200,
     }
     mainGroup.add(SPRITES[3])
     mainGroup.add(SPRITES[4])

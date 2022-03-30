@@ -45,6 +45,7 @@ export default class Hint {
   
   init = () => {
     this.#checkingParams()
+    this.#createDebugDots()
     
     this.#createHint()
     this.#runAnimation()
@@ -119,10 +120,17 @@ export default class Hint {
   #getTargetPosition = () => {
     if (this.hintTargets.length === 0) return {x: null, y: null}
   
-    const target = this.hintTargets[0]
-    const {centerX: x, centerY: y} = target
+    this.game.stage.updateTransform()
+    const {x, y} = this.hintTargets[0].worldPosition
+    
+    // todo некорректно работает, если anchor цели отличен от 0.5!
+    const centerX = x + 0
+    const centerY = y + 0
+    // const centerX = x + this.hintTargets[0].width / 2
+    // const centerY = y + this.hintTargets[0].height / 2
   
-    return {x, y}
+    this.anchorDot.position.set(centerX, centerY)
+    return {x: centerX, y: centerY}
   }
   
   #updateTargetPosition = () => {
@@ -188,5 +196,11 @@ export default class Hint {
     const animationType = !!Object.keys(AnimationType)
       .find((key) => this.animationType === key)
     if (!animationType) throw new Error(`HINT error: недопустимое имя. Допустимые имена: ${ Object.keys(AnimationType) }`)
+  }
+  
+  #createDebugDots = () => {
+    this.anchorDot = this.game.add.image(120, 120, 'debugDot')
+    this.anchorDot.anchor.set(0.5, 0.5)
+    this.anchorDot.scale.set(2)
   }
 }
