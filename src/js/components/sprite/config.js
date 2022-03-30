@@ -58,7 +58,7 @@ const spriteParams = [
     _name      : spriteNames.skeleton5,
     isDisabled : false,
     x          : 800,
-    y          : 1300,
+    y          : 1000,
     anchor     : [1, 0.65],
     initAngle  : 120,
     finishAngle: 0,

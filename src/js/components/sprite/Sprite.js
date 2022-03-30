@@ -43,7 +43,6 @@ export default class Sprite {
     tweenSetAlpha(this.game, sprite, 0, 0.3)
       .onComplete.add(() => {
       this.sprite.destroy()
-      // console.log('sprite alive:', sprite.alive)
     })
   }
 }

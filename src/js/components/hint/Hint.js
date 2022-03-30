@@ -5,25 +5,30 @@ this.game.OnHintTouchStartAction.dispatch(sprite)
 // События на которые можно подписаться:
 this.game.onHintDestroy.add(() => console.log('DESTROYED'))
 
-* */
+// добавить:
+// рандом
+// старт, дестрой, hide
+*/
 
-const AnimationType = {
-  scale: (game, hint, factor, duration) => {
-    return game.add.tween(hint.scale)
-      .to({
-        x: (hint.scale.x * 0.90) * factor,
-        y: (hint.scale.y * 0.90) * factor,
-      }, Phaser.Timer.SECOND * duration, Phaser.Easing.Linear.None, false).yoyo(true)
-      .yoyo(true)
-      .repeat(-1)
-  }
-}
+import {AnimationType} from './animationType.js';
 
 export default class Hint {
-  constructor(game, factor, sprites, durationHint = 0.25, delayHint = 1, targetKey = null) {
+  constructor({
+      game,
+      factor,
+      sprites,
+      keyHint,
+      animationType,
+      durationHint = 0.25,
+      delayHint = 1,
+      targetKey = null,
+    }) {
     this.game = game
     this.factor = factor
     this.sprites = sprites
+    this.keyHint = keyHint
+    this.animationType = animationType
+    
     this.durationHint = durationHint
     this.delayHint = delayHint
     this.targetKey = targetKey
@@ -31,7 +36,8 @@ export default class Hint {
     this.hint = null
     this.hintTargets = []
     this.hintAnimations = null
-  
+    
+    this.isCustomAnimation = false
     this.init()
   }
   
@@ -51,6 +57,13 @@ export default class Hint {
     this.#stopAnimation()
   }
   
+  runCustomAnimation = (cb) => {
+    // this.#stopAnimation()
+    //
+    // this.isCustomAnimation = true
+    // return cb()
+  }
+  
   #initSignals = () => {
     this.game.OnHintTouchStartAction = new Phaser.Signal()
     this.game.onHintDestroy = new Phaser.Signal()
@@ -63,7 +76,7 @@ export default class Hint {
     
     const {x, y} = this.#getTargetPosition()
     
-    this.hint = this.game.add.image(x, y, 'hint')
+    this.hint = this.game.add.image(x, y, this.keyHint)
     this.hint.alpha = 0
   }
   
@@ -86,7 +99,7 @@ export default class Hint {
   
   #getAliveTargets = () => {
     this.hintTargets = []
-    
+  
     // проверка, был ли указан ключ при создании HINT
     if (this.targetKey !== null) {
       this.sprites.find(sprite => {
@@ -146,8 +159,8 @@ export default class Hint {
       if (this.hint === null) return
   
       this.hint.alpha = 1
-      
-      this.hintAnimations = AnimationType.scale(this.game, this.hint, this.factor, this.durationHint)
+  
+      this.hintAnimations = AnimationType[this.animationType](this.game, this.hint, this.factor, this.durationHint)
       this.hintAnimations.start()
     })
   
@@ -156,7 +169,6 @@ export default class Hint {
   
   #stopAnimation = () => {
     if (this.hintAnimations && this.hintAnimations.isRunning) {
-      console.log('stop')
       this.hintAnimations.stop()
       this.game.tweens.remove(this.hintAnimations)
       this.hintAnimations = null

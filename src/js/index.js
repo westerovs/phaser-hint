@@ -1,12 +1,12 @@
 import {SPRITES} from './const.js';
 import {spriteParams, spriteNames} from './components/sprite/config.js'
 import Sprite from './components/sprite/Sprite.js'
-import Hint from './components/Hint.js';
+import Hint from './components/hint/Hint.js';
 
 class Game {
   constructor() {
     this.game  = null
-    this.hint = null
+    this.hint  = null
   }
   
   init() {
@@ -27,6 +27,7 @@ class Game {
     })
     
     this.game.load.image('hint', './src/img/hint.png')
+    this.game.load.image('hint2', './src/img/hint2.png')
   }
   
   create = () => {
@@ -35,7 +36,13 @@ class Game {
   }
   
   #createHint = () => {
-    this.hint = new Hint(this.game, 1, SPRITES,  ).hint
+    new Hint({
+      game: this.game,
+      factor: 1,
+      sprites: SPRITES,
+      keyHint: 'hint',
+      animationType: 'scale'
+    })
   }
   
   #createSprites = () => {
