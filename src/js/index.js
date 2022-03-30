@@ -18,6 +18,7 @@ class Game {
       {
         preload: this.preload,
         create : this.create,
+        render : this.render,
       })
   }
   
@@ -32,15 +33,38 @@ class Game {
   
   create = () => {
     this.#createSprites()
+    this.#createGroup()
+  
     this.#createHint()
   }
   
+  render = () => {
+    SPRITES.forEach(sprite => {
+      if (sprite.alive) this.game.debug.spriteBounds(sprite)
+    })
+    this.game.debug.spriteBounds(this.hint.hint)
+  }
+  
+  #createGroup = () => {
+    const mainGroup = this.game.make.group()
+    const mainGroupOffset = {
+      x: 300,
+      y: 0,
+    }
+    mainGroup.add(SPRITES[3])
+    mainGroup.add(SPRITES[4])
+    mainGroup.add(SPRITES[5])
+    mainGroup.position.set(mainGroupOffset.x, mainGroupOffset.y)
+    this.game.world.add(mainGroup)
+  }
+  
   #createHint = () => {
-    new Hint({
+    this.hint = new Hint({
       game: this.game,
       factor: 1,
       sprites: SPRITES,
       keyHint: 'hint',
+      anchor: [0, 0],
       animationType: 'scale'
     })
   }

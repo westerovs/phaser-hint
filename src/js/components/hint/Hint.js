@@ -17,6 +17,7 @@ export default class Hint {
       game,
       factor,
       sprites,
+      anchor = [0, 0],
       keyHint,
       animationType,
       durationHint = 0.25,
@@ -26,6 +27,7 @@ export default class Hint {
     this.game = game
     this.factor = factor
     this.sprites = sprites
+    this.anchor = anchor
     this.keyHint = keyHint
     this.animationType = animationType
     
@@ -42,6 +44,8 @@ export default class Hint {
   }
   
   init = () => {
+    this.#checkingParams()
+    
     this.#createHint()
     this.#runAnimation()
   
@@ -57,13 +61,6 @@ export default class Hint {
     this.#stopAnimation()
   }
   
-  runCustomAnimation = (cb) => {
-    // this.#stopAnimation()
-    //
-    // this.isCustomAnimation = true
-    // return cb()
-  }
-  
   #initSignals = () => {
     this.game.OnHintTouchStartAction = new Phaser.Signal()
     this.game.onHintDestroy = new Phaser.Signal()
@@ -77,6 +74,7 @@ export default class Hint {
     const {x, y} = this.#getTargetPosition()
     
     this.hint = this.game.add.image(x, y, this.keyHint)
+    this.hint.anchor.set(...this.anchor)
     this.hint.alpha = 0
   }
   
@@ -178,5 +176,17 @@ export default class Hint {
   #restartAnimation = () => {
     this.#stopAnimation()
     this.#runAnimation()
+  }
+  
+  #checkingParams = () => {
+    // проверка на anchor
+    if (!Array.isArray(this.anchor)) {
+      throw new Error('HINT error: anchor должен быть только массивом, типа [0, 0.5] !')
+    }
+    
+    // проверка на тип анимации
+    const animationType = !!Object.keys(AnimationType)
+      .find((key) => this.animationType === key)
+    if (!animationType) throw new Error(`HINT error: недопустимое имя. Допустимые имена: ${ Object.keys(AnimationType) }`)
   }
 }
